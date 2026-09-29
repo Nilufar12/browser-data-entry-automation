@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo Data Entry System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #dashboard {
+            display: none;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Demo Data Entry System</h1>
+
+<div id="login">
+    <h2>Login</h2>
+
+    <input id="username" type="text" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <p id="loginError"></p>
+</div>
+
+
+<div id="dashboard">
+
+    <h2>Data Entry</h2>
+
+    <input id="firstName" type="text" placeholder="First name">
+    <input id="lastName" type="text" placeholder="Last name">
+    <input id="email" type="email" placeholder="Email">
+
+    <button onclick="saveData()">Save</button>
+    <button onclick="logout()">Logout</button>
+
+    <p id="message"></p>
+
+</div>
+
+
+<script>
+
+const accounts = {
+    "user1": "pass123",
+    "user2": "pass456",
+    "user3": "pass789"
+};
+
+
+function login() {
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (accounts[username] === password) {
+
+        document.getElementById("login").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
+    } else {
+
+        document.getElementById("loginError").textContent =
+            "Invalid username or password";
+
+    }
+}
+
+
+function saveData() {
+
+    document.getElementById("message").textContent =
+        "Data saved successfully";
+
+}
+
+
+function logout() {
+
+    document.getElementById("login").style.display = "block";
+    document.getElementById("dashboard").style.display = "none";
+
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+
+}
+
+</script>
+
+</body>
+</html>
