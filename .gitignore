@@ -4,3 +4,4 @@ __pycache__/
 automation.log
 error_*.png
 .env
+report.csv

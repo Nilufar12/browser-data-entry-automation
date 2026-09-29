@@ -1,8 +1,9 @@
-import json
+import csv
 import logging
 from pathlib import Path
-import time
+
 from playwright.sync_api import sync_playwright
+
 
 logging.basicConfig(
     filename="automation.log",
@@ -12,18 +13,30 @@ logging.basicConfig(
 
 
 BASE_DIR = Path(__file__).parent
-
-ACCOUNTS_FILE = BASE_DIR / "accounts.json"
 SITE_FILE = BASE_DIR / "test_site.html"
 
 
-def load_accounts():
-    with open(ACCOUNTS_FILE, "r", encoding="utf-8") as file:
-        return json.load(file)
+def load_accounts_from_csv():
+    with open(BASE_DIR / "accounts.csv", "r", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        return list(reader)
+
+
+def save_report(results):
+    report_file = BASE_DIR / "report.csv"
+
+    with open(report_file, "w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(
+            file,
+            fieldnames=["username", "status", "error"]
+        )
+
+        writer.writeheader()
+        writer.writerows(results)
 
 
 def process_account(page, account):
-    
+
     username = account["username"]
 
     logging.info("Starting account: %s", username)
@@ -55,7 +68,11 @@ def process_account(page, account):
 
         page.locator("button", has_text="Logout").click()
 
-        return True
+        return {
+            "username": username,
+            "status": "success",
+            "error": ""
+        }
 
     except Exception as error:
 
@@ -64,15 +81,21 @@ def process_account(page, account):
             username,
             error
         )
-        return False
+
+        return {
+            "username": username,
+            "status": "failed",
+            "error": str(error)
+        }
 
 
 def main():
 
-    accounts = load_accounts()
+    accounts = load_accounts_from_csv()
 
     successful = 0
     failed = 0
+    results = []
 
     with sync_playwright() as p:
 
@@ -84,10 +107,14 @@ def main():
 
             result = process_account(page, account)
 
-            if result:
+            results.append(result)
+
+            if result["status"] == "success":
                 successful += 1
             else:
                 failed += 1
+
+        save_report(results)
 
         browser.close()
 
@@ -95,6 +122,7 @@ def main():
     print("Automation finished")
     print(f"Successful: {successful}")
     print(f"Failed: {failed}")
+    print("Report saved to report.csv")
 
 
 if __name__ == "__main__":
